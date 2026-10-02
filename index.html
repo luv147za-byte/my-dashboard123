@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Highbet Marang - Cybernetic Kernel Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            950: '#01030d',
+                            900: '#04091f',
+                            800: '#0c183b',
+                            700: '#162b63',
+                            accent: '#00f2fe',
+                            accentAlt: '#4facfe',
+                            pink: '#ff007f',
+                            neonGreen: '#00ff66'
+                        }
+                    },
+                    boxShadow: {
+                        'neon': '0 0 25px rgba(0, 242, 254, 0.3)',
+                        'neon-lg': '0 0 45px rgba(0, 242, 254, 0.45)',
+                        'neon-pink': '0 0 30px rgba(255, 0, 127, 0.4)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #01030d;
+            color: #e2e8f0;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(79, 172, 254, 0.08) 0%, transparent 45%),
+                linear-gradient(to right, rgba(2, 6, 23, 0.4) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.4) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+        }
+        .scanline {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 242, 254, 0.025) 50%, rgba(0, 242, 254, 0.025));
+            background-size: 100% 4px;
+        }
+        .glass-panel {
+            background: rgba(6, 13, 33, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+        }
+        .glass-panel-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-panel-hover:hover {
+            border-color: rgba(0, 242, 254, 0.5);
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #01030d; }
+        ::-webkit-scrollbar-thumb { background: #00f2fe66; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00f2fe; }
+
+        /* Custom Range Slider styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            height: 6px;
+            background: #091535;
+            border-radius: 3px;
+            border: 1px solid rgba(0, 242, 254, 0.25);
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #00f2fe;
+            cursor: pointer;
+            margin-top: -6px;
+            box-shadow: 0 0 12px #00f2fe;
+            transition: transform 0.15s, background-color 0.15s, box-shadow 0.15s;
+        }
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.25);
+            background: #ffffff;
+            box-shadow: 0 0 18px #00f2fe;
+        }
+    </style>
+</head>
+<body class="min-h-screen w-full bg-cyber-950 scanline selection:bg-cyan-500 selection:text-black flex flex-col p-3 md:p-6 relative">
+
+    <!-- Ambient glowing light accents -->
+    <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <!-- Boot Screen Simulation -->
+    <div id="bootScreen" class="fixed inset-0 z-50 bg-[#01030d] flex flex-col items-center justify-center transition-opacity duration-700">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-blue-900/40 via-transparent to-transparent pointer-events-none"></div>
+        <div class="relative z-10 w-11/12 max-w-lg p-6 md:p-8 bg-[#04091f]/95 border border-cyan-500/40 rounded-3xl shadow-[0_0_60px_rgba(0,242,254,0.25)] backdrop-blur-2xl">
+            <div class="flex items-center justify-center mb-4">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(0,242,254,0.6)] animate-pulse">
+                    <i class="fa-solid fa-microchip text-black text-2xl"></i>
+                </div>
+            </div>
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-wider text-cyan-400 text-center mb-1 font-mono uppercase drop-shadow-[0_0_10px_rgba(0,242,254,0.5)]">HIGHBET MARANG</h1>
+            <p class="text-xs text-slate-400 text-center mb-5 font-mono tracking-widest">CYBERNETIC SYSTEM KERNEL v4.8 ULTRA</p>
+            <p id="bootPercent" class="text-sm font-mono text-cyan-300 text-center mb-3 font-semibold">BOOTING: 0%</p>
+            
+            <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-cyan-500/30 mb-6 p-0.5 shadow-inner">
+                <div id="bootBar" class="bg-gradient-to-r from-blue-600 via-cyan-400 to-emerald-400 h-full w-0 rounded-full transition-all duration-100 shadow-[0_0_15px_#00f2fe]"></div>
+            </div>
+
+            <div id="bootLogs" class="bg-[#02050e] p-4 rounded-2xl border border-blue-900/50 h-36 overflow-hidden text-xs font-mono text-cyan-400 flex flex-col justify-end space-y-2 shadow-inner">
+                <div>[System] Initializing secure neural bridge...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Wrapper (Full Width & Immersive) -->
+    <div id="mainDashboard" class="opacity-0 transition-opacity duration-700 w-full flex-1 flex flex-col gap-6 z-10 max-w-[1920px] mx-auto">
+        
+        <!-- Header / Window Title Bar -->
+        <header id="windowHeader" class="glass-panel rounded-2xl p-5 flex flex-wrap items-center justify-between gap-6 shadow-neon backdrop-blur-xl">
+            <div class="flex items-center space-x-4">
+                <div class="relative flex items-center justify-center">
+                    <div id="mainDot" class="w-4 h-4 rounded-full bg-red-500 shadow-[0_0_15px_#ff0000] transition-colors duration-300"></div>
+                    <div class="absolute w-7 h-7 rounded-full border border-red-500/50 animate-ping opacity-75"></div>
+                </div>
+                <div>
+                    <span class="font-bold tracking-wider text-cyan-300 text-xl md:text-2xl font-mono flex items-center gap-2.5 drop-shadow-[0_0_8px_rgba(0,242,254,0.4)]">
+                        <i class="fa-solid fa-shield-halved text-cyan-400 text-base"></i> Premium Highbet Marang
+                    </span>
+                    <span class="text-xs text-slate-400 font-mono tracking-widest block mt-0.5">ADVANCED MEMORY TRAINER & NEURAL INJECTOR</span>
+                </div>
+            </div>
+
+            <!-- Connection Status Badges -->
+            <div class="flex flex-wrap items-center gap-3 text-xs font-mono">
+                <div class="px-4 py-2 rounded-xl bg-slate-950/80 border border-blue-900/80 flex items-center gap-2.5 shadow-md">
+                    <i class="fa-solid fa-server text-cyan-400 text-sm"></i>
+                    <span class="text-slate-300">Server:</span> <span id="server-status" class="text-red-400 font-bold tracking-wide">Disconnected</span>
+                </div>
+                <div class="px-4 py-2 rounded-xl bg-slate-950/80 border border-blue-900/80 flex items-center gap-2.5 shadow-md">
+                    <i class="fa-solid fa-gamepad text-cyan-400 text-sm"></i>
+                    <span class="text-slate-300">Game:</span> <span id="game-status" class="text-red-400 font-bold tracking-wide">Not Running</span>
+                </div>
+            </div>
+
+            <!-- Window Control Buttons -->
+            <div class="flex items-center space-x-2.5">
+                <button onclick="minimizeWindow()" title="Minimize" class="w-10 h-10 bg-blue-950/60 hover:bg-blue-700/80 text-cyan-300 rounded-xl text-xs font-mono border border-blue-500/30 flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-window-minimize text-sm"></i>
+                </button>
+                <button onclick="closeWindow()" title="Emergency Exit" class="w-10 h-10 bg-red-950/60 hover:bg-red-700/80 text-red-200 rounded-xl text-xs font-mono border border-red-500/30 flex items-center justify-center transition-all shadow-md active:scale-95 cursor-pointer">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Fluid Responsive Grid Layout -->
+        <main class="grid grid-cols-1 xl:grid-cols-2 gap-6 flex-1">
+            
+            <!-- LEFT COLUMN -->
+            <section id="panelLeft" class="glass-panel glass-panel-hover rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl justify-between">
+                
+                <div class="space-y-6">
+                    <!-- Setting for Player Header -->
+                    <div class="flex items-center justify-between border-b border-cyan-500/30 pb-3">
+                        <h2 class="text-cyan-400 font-mono text-base md:text-lg tracking-wider font-bold flex items-center gap-2.5">
+                            <i class="fa-solid fa-sliders text-sm text-cyan-400"></i> [SETTING FOR PLAYER]
+                        </h2>
+                        <span class="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2.5 py-1 rounded-md border border-cyan-500/30 tracking-widest shadow-inner">CORE MODS</span>
+                    </div>
+                    
+                    <!-- Wings Control -->
+                    <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                <i class="fa-solid fa-feather text-cyan-400"></i> Wings Control
+                            </label>
+                            <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">FLOAT VALUE</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="number" step="0.00001" id="sliderValue" value="1.13446" oninput="syncInput('sliderValue', 'sliderRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                            <button onclick="adjustVal('sliderValue', 'sliderRange', -0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                            <button onclick="adjustVal('sliderValue', 'sliderRange', 0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                        </div>
+                        <input type="range" min="0" max="10" step="0.01" id="sliderRange" value="1.13446" oninput="syncRange('sliderRange', 'sliderValue')" class="w-full mt-4 cursor-pointer">
+                    </div>
+
+                    <!-- Flows Smoothly God -->
+                    <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                <i class="fa-solid fa-water text-cyan-400"></i> Flows Smoothly God
+                            </label>
+                            <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">VELOCITY</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="number" step="0.1" id="slidingVal" value="12.5" oninput="syncInput('slidingVal', 'slidingRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                            <button onclick="adjustVal('slidingVal', 'slidingRange', -0.5)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                            <button onclick="adjustVal('slidingVal', 'slidingRange', 0.5)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                        </div>
+                        <input type="range" min="0" max="100" step="0.5" id="slidingRange" value="12.5" oninput="syncRange('slidingRange', 'slidingVal')" class="w-full mt-4 cursor-pointer">
+                    </div>
+
+                    <!-- Adjustable Punch Power -->
+                    <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                <i class="fa-solid fa-hand-fist text-cyan-400"></i> Adjustable Punch Power
+                            </label>
+                            <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">STRENGTH</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="number" step="0.00001" id="punchVal" value="0.11500" oninput="syncInput('punchVal', 'punchRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                            <button onclick="adjustVal('punchVal', 'punchRange', -0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                            <button onclick="adjustVal('punchVal', 'punchRange', 0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                        </div>
+                        <input type="range" min="0" max="5" step="0.001" id="punchRange" value="0.115" oninput="syncRange('punchRange', 'punchVal')" class="w-full mt-4 cursor-pointer">
+                    </div>
+                </div>
+
+                <!-- Fast Pool -->
+                <div class="space-y-4 pt-4 border-t border-cyan-500/20">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-cyan-400 font-mono text-base md:text-lg tracking-wider font-bold flex items-center gap-2.5">
+                            <i class="fa-solid fa-bolt text-sm text-cyan-400"></i> [FAST POOL]
+                        </h2>
+                    </div>
+                    <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                        <div class="flex justify-between items-center mb-2.5">
+                            <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-cyan-400"></i> Pool Adjust the value
+                            </label>
+                            <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">MULTIPLIER</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <input type="number" step="0.000001" id="customFloatVal" value="0.39200" oninput="syncInput('customFloatVal', 'customFloatRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                            <button onclick="adjustVal('customFloatVal', 'customFloatRange', -0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                            <button onclick="adjustVal('customFloatVal', 'customFloatRange', 0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                        </div>
+                        <input type="range" min="0" max="5" step="0.001" id="customFloatRange" value="0.392" oninput="syncRange('customFloatRange', 'customFloatVal')" class="w-full mt-4 cursor-pointer">
+                    </div>
+                    <button onclick="executeScan('pool', 'status-pool')" class="w-full py-3.5 bg-gradient-to-r from-blue-700 via-cyan-600 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white text-sm font-mono font-bold tracking-widest rounded-2xl border border-cyan-400/60 shadow-[0_0_20px_rgba(0,242,254,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer">
+                        <i class="fa-solid fa-radar text-base animate-spin"></i> EXECUTE SCAN POOL
+                    </button>
+                    <p id="status-pool" class="text-xs font-mono text-slate-400 mt-1 pl-1">Status: Ready</p>
+                </div>
+
+            </section>
+
+            <!-- RIGHT COLUMN -->
+            <section id="panelRight" class="glass-panel glass-panel-hover rounded-2xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl justify-between">
+                
+                <div class="space-y-6">
+                    <!-- Sing Section -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-cyan-500/30 pb-3">
+                            <h2 class="text-cyan-400 font-mono text-base md:text-lg tracking-wider font-bold flex items-center gap-2.5">
+                                <i class="fa-solid fa-microphone-lines text-sm text-cyan-400"></i> [SING]
+                            </h2>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                            <div class="flex justify-between items-center mb-2.5">
+                                <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                    <i class="fa-solid fa-music text-cyan-400"></i> Sing Adjust the value
+                                </label>
+                                <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">FREQUENCY</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="number" step="0.000001" id="newCustomFloatVal" value="4.90000" oninput="syncInput('newCustomFloatVal', 'newCustomFloatRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                                <button onclick="adjustVal('newCustomFloatVal', 'newCustomFloatRange', -0.1)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                                <button onclick="adjustVal('newCustomFloatVal', 'newCustomFloatRange', 0.1)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                            </div>
+                            <input type="range" min="0" max="10" step="0.01" id="newCustomFloatRange" value="4.9" oninput="syncRange('newCustomFloatRange', 'newCustomFloatVal')" class="w-full mt-4 cursor-pointer">
+                        </div>
+                        <button onclick="executeScan('sing', 'status-sing')" class="w-full py-3.5 bg-gradient-to-r from-blue-700 via-cyan-600 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white text-sm font-mono font-bold tracking-widest rounded-2xl border border-cyan-400/60 shadow-[0_0_20px_rgba(0,242,254,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer">
+                            <i class="fa-solid fa-radar text-base animate-spin"></i> EXECUTE SCAN SING
+                        </button>
+                        <p id="status-sing" class="text-xs font-mono text-slate-400 mt-1 pl-1">Status: Ready</p>
+                    </div>
+
+                    <!-- King Deng (RightFlow) -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-cyan-500/30 pb-3">
+                            <h2 class="text-cyan-400 font-mono text-base md:text-lg tracking-wider font-bold flex items-center gap-2.5">
+                                <i class="fa-solid fa-crown text-sm text-cyan-400"></i> [King Deng (RightFlow)]
+                            </h2>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                            <div class="flex justify-between items-center mb-2.5">
+                                <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                    <i class="fa-solid fa-right-long text-cyan-400"></i> Right Flow Value
+                                </label>
+                                <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">FLOW SPEED</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="number" step="0.1" id="groundSinkFloatVal" value="5.4" oninput="syncInput('groundSinkFloatVal', 'groundSinkFloatRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                                <button onclick="adjustVal('groundSinkFloatVal', 'groundSinkFloatRange', -0.1)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                                <button onclick="adjustVal('groundSinkFloatVal', 'groundSinkFloatRange', 0.1)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                            </div>
+                            <input type="range" min="0" max="20" step="0.1" id="groundSinkFloatRange" value="5.4" oninput="syncRange('groundSinkFloatRange', 'groundSinkFloatVal')" class="w-full mt-4 cursor-pointer">
+                        </div>
+                        <button onclick="executeScan('deng', 'status-deng')" class="w-full py-3.5 bg-gradient-to-r from-blue-700 via-cyan-600 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white text-sm font-mono font-bold tracking-widest rounded-2xl border border-cyan-400/60 shadow-[0_0_20px_rgba(0,242,254,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer">
+                            <i class="fa-solid fa-radar text-base animate-spin"></i> EXECUTE SCAN DENG
+                        </button>
+                        <p id="status-deng" class="text-xs font-mono text-slate-400 mt-1 pl-1">Status: Ready</p>
+                    </div>
+
+                    <!-- Fast Punch -->
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-cyan-500/30 pb-3">
+                            <h2 class="text-cyan-400 font-mono text-base md:text-lg tracking-wider font-bold flex items-center gap-2.5">
+                                <i class="fa-solid fa-bolt-lightning text-sm text-cyan-400"></i> [FAST PUNCH]
+                            </h2>
+                        </div>
+                        <div class="bg-slate-900/50 p-4 md:p-5 rounded-2xl border border-blue-900/50 hover:border-cyan-500/40 transition-all shadow-lg">
+                            <div class="flex justify-between items-center mb-2.5">
+                                <label class="text-sm text-slate-200 font-medium flex items-center gap-2">
+                                    <i class="fa-solid fa-gauge-high text-cyan-400"></i> Fast Punch Adjust the value
+                                </label>
+                                <span class="text-xs font-mono text-cyan-400/80 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-500/20">SPEED RATE</span>
+                            </div>
+                            <div class="flex items-center space-x-3">
+                                <input type="number" step="0.001" id="fastPunchFloatVal" value="0.573" oninput="syncInput('fastPunchFloatVal', 'fastPunchFloatRange')" class="w-full bg-[#02050e] border border-blue-900/70 rounded-xl px-4 py-2.5 text-base text-cyan-300 font-mono focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/50 transition shadow-inner">
+                                <button onclick="adjustVal('fastPunchFloatVal', 'fastPunchFloatRange', -0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">-</button>
+                                <button onclick="adjustVal('fastPunchFloatVal', 'fastPunchFloatRange', 0.01)" class="w-10 h-10 bg-blue-950 hover:bg-blue-700 text-cyan-300 border border-blue-500/40 rounded-xl font-bold text-sm flex items-center justify-center transition active:scale-95 shadow-md cursor-pointer">+</button>
+                            </div>
+                            <input type="range" min="0" max="5" step="0.001" id="fastPunchFloatRange" value="0.573" oninput="syncRange('fastPunchFloatRange', 'fastPunchFloatVal')" class="w-full mt-4 cursor-pointer">
+                        </div>
+                        <button onclick="executeScan('fast_punch', 'status-fast-punch')" class="w-full py-3.5 bg-gradient-to-r from-blue-700 via-cyan-600 to-blue-600 hover:from-blue-600 hover:to-cyan-500 text-white text-sm font-mono font-bold tracking-widest rounded-2xl border border-cyan-400/60 shadow-[0_0_20px_rgba(0,242,254,0.35)] transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer">
+                            <i class="fa-solid fa-radar text-base animate-spin"></i> EXECUTE SCAN FAST PUNCH
+                        </button>
+                        <p id="status-fast-punch" class="text-xs font-mono text-slate-400 mt-1 pl-1">Status: Ready</p>
+                    </div>
+                </div>
+
+                <!-- Reset Values Section -->
+                <div class="space-y-3 pt-6 border-t border-cyan-500/20">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-cyan-400 font-mono text-base md:text-lg tracking-wider font-bold flex items-center gap-2.5">
+                            <i class="fa-solid fa-gear text-sm text-cyan-400"></i> [SYSTEM CONFIG]
+                        </h2>
+                    </div>
+                    <button onclick="resetDefaults()" class="w-full py-3.5 bg-blue-950/80 hover:bg-blue-900 text-cyan-300 text-sm font-mono font-bold tracking-widest rounded-2xl border border-blue-500/50 shadow-md transition-all active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer">
+                        <i class="fa-solid fa-rotate-right"></i> Reset Values to Default
+                    </button>
+                </div>
+
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Notification Dialog Modal -->
+    <div id="msgModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center hidden p-4 transition-all">
+        <div class="glass-panel border-cyan-500/60 p-8 rounded-3xl max-w-md w-full shadow-[0_0_40px_rgba(0,242,254,0.35)] text-center transform scale-95 transition-transform">
+            <div class="w-14 h-14 rounded-2xl bg-cyan-950/90 border border-cyan-500/60 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(0,242,254,0.5)]">
+                <i class="fa-solid fa-terminal text-cyan-400 text-xl"></i>
+            </div>
+            <h3 id="modalTitle" class="text-cyan-400 font-bold font-mono text-lg mb-2.5 tracking-wider">NOTIFICATION</h3>
+            <p id="modalText" class="text-sm text-slate-300 font-mono mb-6 leading-relaxed">Message goes here...</p>
+            <button onclick="closeModal()" class="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white rounded-2xl text-sm font-mono font-bold tracking-wider border border-cyan-400/60 shadow-[0_0_20px_rgba(0,242,254,0.35)] transition active:scale-95 cursor-pointer">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // แก้ไขลิงก์ API เป็น Ngrok ของคุณแล้วที่นี่
+        const API_URL = "https://jumble-nanny-brethren.ngrok-free.dev";
+
+        // Boot loader sequence simulation
+        window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const bootBar = document.getElementById('bootBar');
+            const bootPercent = document.getElementById('bootPercent');
+            const bootLogs = document.getElementById('bootLogs');
+            const bootScreen = document.getElementById('bootScreen');
+            const mainDashboard = document.getElementById('mainDashboard');
+
+            const logs = [
+                "[Security] Bypassing memory allocation checks...",
+                "[Network] Establishing secure link to process...",
+                "[Memory] Injecting modules & pointer structures...",
+                "[Ready] System online. Launching full-screen HUD..."
+            ];
+
+            let logIdx = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 8) + 6;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        bootScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            bootScreen.style.display = 'none';
+                            mainDashboard.style.opacity = '1';
+                        }, 500);
+                    }, 400);
+                }
+                bootBar.style.width = progress + '%';
+                bootPercent.innerText = `BOOTING: ${progress}%`;
+
+                if (progress > 25 && logIdx === 0) { addLog(logs[0]); logIdx++; }
+                if (progress > 55 && logIdx === 1) { addLog(logs[1]); logIdx++; }
+                if (progress > 80 && logIdx === 2) { addLog(logs[2]); logIdx++; }
+                if (progress >= 100 && logIdx === 3) { addLog(logs[3], true); }
+            }, 55);
+
+            function addLog(text, isReady = false) {
+                const div = document.createElement('div');
+                div.innerText = text;
+                if (isReady) div.className = "text-emerald-400 font-bold flex items-center gap-2";
+                bootLogs.appendChild(div);
+                bootLogs.scrollTop = bootLogs.scrollHeight;
+            }
+        });
+
+        // Sync slider to text input
+        function syncRange(rangeId, textId) {
+            document.getElementById(textId).value = document.getElementById(rangeId).value;
+            sendUpdateData();
+        }
+
+        // Sync text input to slider
+        function syncInput(textId, rangeId) {
+            let val = document.getElementById(textId).value;
+            let rangeEl = document.getElementById(rangeId);
+            if (!isNaN(val) && val !== "") {
+                rangeEl.value = val;
+            }
+            sendUpdateData();
+        }
+
+        // Adjust value using + and - buttons
+        function adjustVal(textId, rangeId, amount) {
+            let textEl = document.getElementById(textId);
+            let rangeEl = document.getElementById(rangeId);
+            
+            let val = parseFloat(textEl.value) + amount;
+            if (isNaN(val)) val = 0;
+            
+            textEl.value = val.toFixed(5);
+            rangeEl.value = val;
+            
+            sendUpdateData();
+        }
+
+        // Reset all values to default
+        function resetDefaults() {
+            document.getElementById('sliderValue').value = 1.13446;
+            document.getElementById('sliderRange').value = 1.13446;
+
+            document.getElementById('slidingVal').value = 12.5;
+            document.getElementById('slidingRange').value = 12.5;
+
+            document.getElementById('punchVal').value = 0.11500;
+            document.getElementById('punchRange').value = 0.11500;
+
+            document.getElementById('customFloatVal').value = 0.39200;
+            document.getElementById('customFloatRange').value = 0.39200;
+
+            document.getElementById('newCustomFloatVal').value = 4.90000;
+            document.getElementById('newCustomFloatRange').value = 4.90000;
+
+            document.getElementById('groundSinkFloatVal').value = 5.4;
+            document.getElementById('groundSinkFloatRange').value = 5.4;
+
+            document.getElementById('fastPunchFloatVal').value = 0.573;
+            document.getElementById('fastPunchFloatRange').value = 0.573;
+
+            sendUpdateData();
+            showModal("RESET SUCCESS", "All trainer memory values have been successfully restored to defaults.");
+        }
+
+        // Send configuration update to C++ server
+        function sendUpdateData() {
+            const formData = new URLSearchParams();
+            formData.append("sliderValue", document.getElementById("sliderValue").value);
+            formData.append("slidingVal", document.getElementById("slidingVal").value);
+            formData.append("punchVal", document.getElementById("punchVal").value);
+            formData.append("customFloatVal", document.getElementById("customFloatVal").value);
+            formData.append("newCustomFloatVal", document.getElementById("newCustomFloatVal").value);
+            formData.append("groundSinkFloatVal", document.getElementById("groundSinkFloatVal").value);
+            formData.append("fastPunchFloatVal", document.getElementById("fastPunchFloatVal").value);
+
+            fetch(`${API_URL}/api/update`, {
+                method: "POST",
+                body: formData
+            }).catch(err => console.error("Error updating memory:", err));
+        }
+
+        // Execute memory pattern scanning via C++ API
+        function executeScan(type, statusElementId) {
+            let statusEl = document.getElementById(statusElementId);
+            statusEl.innerText = "Status: Scanning memory patterns...";
+            statusEl.className = "text-xs font-mono text-yellow-400 mt-1 pl-1 animate-pulse";
+
+            const formData = new URLSearchParams();
+            formData.append("type", type);
+
+            fetch(`${API_URL}/api/scan`, {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    statusEl.innerText = "Status: Pattern Found & Hooked!";
+                    statusEl.className = "text-xs font-mono text-emerald-400 mt-1 pl-1 font-bold";
+                } else {
+                    statusEl.innerText = "Status: Pattern Not Found";
+                    statusEl.className = "text-xs font-mono text-red-400 mt-1 pl-1";
+                }
+            })
+            .catch(err => {
+                statusEl.innerText = "Status: Server Disconnected (Simulation Mode)";
+                statusEl.className = "text-xs font-mono text-cyan-400 mt-1 pl-1";
+            });
+        }
+
+        // Check Server and Game connection status periodically
+        setInterval(() => {
+            fetch(`${API_URL}/api/status`)
+            .then(res => res.json())
+            .then(data => {
+                let serverBadge = document.getElementById("server-status");
+                let gameBadge = document.getElementById("game-status");
+                let mainDot = document.getElementById("mainDot");
+
+                if (data.connected) {
+                    serverBadge.innerText = "Connected";
+                    serverBadge.className = "text-emerald-400 font-bold tracking-wide";
+                } else {
+                    serverBadge.innerText = "Disconnected";
+                    serverBadge.className = "text-red-400 font-bold tracking-wide";
+                }
+
+                if (data.gameRunning) {
+                    gameBadge.innerText = "Running";
+                    gameBadge.className = "text-emerald-400 font-bold tracking-wide";
+                    mainDot.className = "w-4 h-4 rounded-full bg-emerald-400 shadow-[0_0_15px_#00ff66] transition-colors duration-300";
+                } else {
+                    gameBadge.innerText = "Not Running";
+                    gameBadge.className = "text-red-400 font-bold tracking-wide";
+                    mainDot.className = "w-4 h-4 rounded-full bg-yellow-400 shadow-[0_0_15px_#ffaa00] transition-colors duration-300";
+                }
+            })
+            .catch(() => {
+                let serverBadge = document.getElementById("server-status");
+                let gameBadge = document.getElementById("game-status");
+                let mainDot = document.getElementById("mainDot");
+
+                serverBadge.innerText = "Disconnected";
+                serverBadge.className = "text-red-400 font-bold tracking-wide";
+                gameBadge.innerText = "Not Running";
+                gameBadge.className = "text-red-400 font-bold tracking-wide";
+                mainDot.className = "w-4 h-4 rounded-full bg-red-500 shadow-[0_0_15px_#ff0000] transition-colors duration-300";
+            });
+        }, 2000);
+
+        // Window controls
+        function minimizeWindow() {
+            const main = document.getElementById('mainDashboard');
+            main.style.display = main.style.display === 'none' ? 'flex' : 'none';
+        }
+
+        function closeWindow() {
+            showModal("PANIC EXECUTED", "Emergency shutdown initiated. Closing trainer session safely.");
+            setTimeout(() => {
+                document.body.innerHTML = '<div class="h-screen w-screen bg-[#01030d] flex flex-col items-center justify-center text-red-500 font-mono text-2xl gap-3"><i class="fa-solid fa-triangle-exclamation text-4xl animate-bounce"></i> SESSION TERMINATED. KERNEL OFFLINE.</div>';
+            }, 1200);
+        }
+
+        function showModal(title, text) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalText').innerText = text;
+            document.getElementById('msgModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('msgModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
